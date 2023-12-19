@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XOXO Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .board {
+            display: inline-grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 1px;
+            border: 2px solid black;
+        }
+
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            border: 1px solid black;
+            font-size: 2em;
+            cursor: pointer;
+        }
+
+        .winner {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <h1>XOXO Game</h1>
+    <div class="board" id="board"></div>
+    <button onclick="resetBoard()">Reset Game</button>
+
+    <script>
+        let board = Array(9).fill(null);
+        let currentPlayer = 'X';
+        let winner = null;
+
+        const winningCombinations = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+
+        const boardElement = document.getElementById('board');
+
+        function handleCellClick(event) {
+            const cell = event.target;
+            const index = cell.id;
+
+            if (!board[index] && !winner) {
+                board[index] = currentPlayer;
+                cell.innerText = currentPlayer;
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                checkWin();
+            }
+        }
+
+        function checkWin() {
+            for (let combination of winningCombinations) {
+                const [a, b, c] = combination;
+                if (
+                    board[a] &&
+                    board[a] === board[b] &&
+                    board[a] === board[c]
+                ) {
+                    winner = board[a];
+                    break;
+                }
+            }
+
+            if (winner) {
+                announceWinner(winner);
+            } else if (board.every((cell) => cell)) {
+                announceWinner('tie');
+            }
+        }
+
+        function announceWinner(winner) {
+            let message = winner === 'tie' ? 'It\'s a tie!' : `Player ${winner} wins!`;
+            alert(message);
+            resetBoard();
+        }
+
+        function resetBoard() {
+            board = Array(9).fill(null);
+            currentPlayer = 'X';
+            winner = null;
+
+            boardElement.querySelectorAll('.cell').forEach((cell) => {
+                cell.innerText = '';
+                cell.classList.remove('winner');
+            });
+        }
+
+        boardElement.addEventListener('click', handleCellClick);
+
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement('div');
+            cell.id = i;
+            cell.classList.add('cell');
+            boardElement.appendChild(cell);
+        }
+    </script>
+</body>
+</html>
